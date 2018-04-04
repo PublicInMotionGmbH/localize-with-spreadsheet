@@ -31,7 +31,7 @@ GSReader.prototype.fetchAllCells = function () {
                     console.warn('WARNING! Check that your spreadsheet is "Published" in "File > Publish to the web..."');
                     self._fetchDeferred.reject(err);
                 } else {
-                    var worksheetReader = new WorksheetReader(this._sheetsFilter, data.worksheets);
+                    var worksheetReader = new WorksheetReader(self._sheetsFilter, data.worksheets);
                     worksheetReader.read(function (fetchedWorksheets) {
                         self._fetchedWorksheets = fetchedWorksheets;
                         self._fetchDeferred.resolve(self._fetchedWorksheets);
@@ -89,11 +89,17 @@ GSReader.prototype.extractFromWorksheet = function (rawWorksheet, keyCol, valCol
         }
         for (var i = 1; i < rows.length; i++) {
             var row = rows[i];
+
             if (row) {
                 var keyValue = row[keyIndex];
                 var valValue = row[valIndex];
-
-                results.push(new Line(keyValue, valValue));
+                var line = new Line(keyValue, valValue);
+                if (line._isComment) {
+                  results.push(new Line("","\n"))
+                }
+                if (line._key != '') {
+                  results.push(line);
+                 }
             }
         }
     }
@@ -212,5 +218,3 @@ module.exports = {
     GS: GSReader,
     Fake: FakeReader
 }
-
-
