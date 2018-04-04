@@ -94,12 +94,12 @@ GSReader.prototype.extractFromWorksheet = function (rawWorksheet, keyCol, valCol
                 var keyValue = row[keyIndex];
                 var valValue = row[valIndex];
                 var line = new Line(keyValue, valValue);
-                if (line._isComment) {
-                  results.push(new Line("","\n"))
+                if (line.isComment()) {
+                    results.push(new Line("","\n"))
                 }
-                if (line._key != '') {
-                  results.push(line);
-                 }
+                if (line.getKey() != '') {
+                    results.push(line);
+                }
             }
         }
     }
