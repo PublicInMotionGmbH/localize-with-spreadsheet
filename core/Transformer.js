@@ -221,8 +221,7 @@ function setCharAt(str, index, chr) {
 }
 
 function isPlural(str) {
-	var key = str.other
-	return key
+	return str.other !== undefined
 }
 
 module.exports = {'ios': iOSTransformer, 'android': androidTransformer, 'json': jsonTransformer, 'dart': dartTransformer, 'dartTemplate': dartTemplateTransformer, '.net': dotNetTransformer };
