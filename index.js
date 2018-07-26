@@ -63,7 +63,12 @@ Gs2File.prototype.save = function (outputPath, opts, cb) {
     this._reader.select(keyCol, valueCol).then(function (lines) {
         if (lines) {
             var transformer = Transformer[format || 'android'];
-            self._writer.write(outputPath, encoding, lines, transformer, opts);
+            self._writer.write(outputPath, encoding, lines, transformer, opts, false);
+
+            if (format == 'ios') {
+              var transformer = Transformer[format];
+              self._writer.write(outputPath + 'dict', encoding, lines, transformer, opts, true)
+            }
         }
 
         if (typeof(cb) == 'function') {
