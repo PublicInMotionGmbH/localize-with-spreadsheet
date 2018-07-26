@@ -20,7 +20,7 @@ FileWriter.prototype.write = function (filePath, encoding, lines, transformer, o
     }
 
      var valueToInsert = this.getTransformedLines(lines, transformer, isIOSDictFormat);
-     valueToInsert = valueToInsert.replace(/\n\s*\n/g, '\n');
+     valueToInsert = valueToInsert.replace(/\n\n\s*\n/g, '\n');
 
      if (isIOSDictFormat) {
         valueToInsert = valueToInsert.replace(/\/\/.*/gi, "")
@@ -52,8 +52,9 @@ FileWriter.prototype.getTransformedLines = function (lines, transformer, flag) {
                 valueToInsert += transformer.transformComment(line.getComment());
             } else {
                 newVal = transformer.transformKeyValue(line.getKey(), line.getValue(), flag);
-
-                valueToInsert += newVal
+                // if (newVal != "") {
+                    valueToInsert += newVal
+                // }
             }
         }
         if (i != lines.length - 1) {
