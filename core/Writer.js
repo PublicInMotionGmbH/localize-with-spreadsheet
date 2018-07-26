@@ -23,8 +23,8 @@ FileWriter.prototype.write = function (filePath, encoding, lines, transformer, o
      valueToInsert = valueToInsert.replace(/\n\s*\n/g, '\n');
 
      if (isIOSDictFormat) {
+        valueToInsert = valueToInsert.replace(/\/\/.*/gi, "")
         var output = transformer.insertForIOSDictFormat(fileContent, valueToInsert, options);
-        output = output.replace(/\/\/.*/gi, "")
      } else {
         var output = transformer.insert(fileContent, valueToInsert, options);
      }
