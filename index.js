@@ -30,7 +30,7 @@ Gs2File.prototype.setEncoding = function (encoding) {
     this._defaultEncoding = encoding;
 }
 
-Gs2File.prototype.save = function (outputPath, iOSDictPath, opts, cb) {
+Gs2File.prototype.save = function (outputPath, opts, iOSDictPath, cb) {
     console.log('saving ' + outputPath);
     var self = this;
 
