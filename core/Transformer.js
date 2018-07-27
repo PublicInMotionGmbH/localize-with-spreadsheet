@@ -29,6 +29,8 @@ var iOSTransformer = {
         } 
 
         if (isIOSDictFormat === false && xmlFormat.other === undefined) {
+            normalizedValue = normalizedValue.replace(/\\%([@df])/gi, "%$1");
+            normalizedValue = normalizedValue.replace(/\\%(\d)\$([@df])/gi, "%$1$$$2");
             return '"' + key + '" = "' + normalizedValue + '";'; // Return '.string' format line
         }
 
