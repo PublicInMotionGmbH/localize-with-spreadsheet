@@ -13,16 +13,22 @@ Writer.prototype.write = function (filePath, lines, transformer) {
 var FileWriter = function () {
 };
 
-FileWriter.prototype.write = function (filePath, encoding, lines, transformer, options) {
+FileWriter.prototype.write = function (filePath, encoding, lines, transformer, options, isIOSDictFormat) {
     var fileContent = '';
     if (fs.existsSync(filePath)) {
         fileContent = fs.readFileSync(filePath, encoding);
     }
 
-    var valueToInsert = this.getTransformedLines(lines, transformer);
+     var valueToInsert = this.getTransformedLines(lines, transformer, isIOSDictFormat);
 
-    var output = transformer.insert(fileContent, valueToInsert, options);
+     if (isIOSDictFormat === true) {
+        valueToInsert = valueToInsert.replace(/\/\/.*/gi, "") // Remove unnecessary comments
+        var output = transformer.insertForIOSDictFormat(fileContent, valueToInsert, options);
+     } else {
+        var output = transformer.insert(fileContent, valueToInsert, options);
+     }
 
+    output = output.replace(/\n\n\s*\n/g, '\n'); // Remove unnecessary enters
     writeFileAndCreateDirectoriesSync(filePath, output, 'utf8');
 };
 
@@ -37,7 +43,7 @@ var writeFileAndCreateDirectoriesSync = function (filepath, content, encoding) {
     fs.writeFileSync(filepath, content, encoding);
 };
 
-FileWriter.prototype.getTransformedLines = function (lines, transformer) {
+FileWriter.prototype.getTransformedLines = function (lines, transformer, isIOSDictFormat) {
     var valueToInsert = '';
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
@@ -45,7 +51,7 @@ FileWriter.prototype.getTransformedLines = function (lines, transformer) {
             if (line.isComment()) {
                 valueToInsert += transformer.transformComment(line.getComment());
             } else {
-                valueToInsert += transformer.transformKeyValue(line.getKey(), line.getValue());
+                valueToInsert += transformer.transformKeyValue(line.getKey(), line.getValue(), isIOSDictFormat);
             }
         }
         if (i != lines.length - 1) {

@@ -30,7 +30,7 @@ Gs2File.prototype.setEncoding = function (encoding) {
     this._defaultEncoding = encoding;
 }
 
-Gs2File.prototype.save = function (outputPath, opts, cb) {
+Gs2File.prototype.save = function (outputPath, opts, iOSDictPath, cb) {
     console.log('saving ' + outputPath);
     var self = this;
 
@@ -63,7 +63,13 @@ Gs2File.prototype.save = function (outputPath, opts, cb) {
     this._reader.select(keyCol, valueCol).then(function (lines) {
         if (lines) {
             var transformer = Transformer[format || 'android'];
-            self._writer.write(outputPath, encoding, lines, transformer, opts);
+            self._writer.write(outputPath, encoding, lines, transformer, opts, false);
+
+            // Create special '.stringdict' file for iOS if required 
+            if (iOSDictPath) {
+                var transformer = Transformer["ios"];
+                self._writer.write(iOSDictPath, encoding, lines, transformer, opts, true)
+            } 
         }
 
         if (typeof(cb) == 'function') {
