@@ -264,26 +264,26 @@ function iOSDictFormatGenerator(key, value) {
             str = str.replace(/\\%([@df])/gi, "%$1");
             str = str.replace(/\\%(\d)\$([@df])/gi, "%$1$$$2");
 
-            values += '\t\t<key>' + val + '</key>\n'
-            values += '\t\t<string>' + str + '</string>\n'
+            values += '\t\t\t<key>' + val + '</key>\n'
+            values += '\t\t\t<string>' + str + '</string>\n'
         }
 
 
-        var internal = '\t\t<key>NSStringFormatSpecTypeKey</key>\n' +
-                       '\t\t<string>NSStringPluralRuleType</string>\n' +
-                       '\t\t<key>NSStringFormatValueTypeKey</key>\n' +
-                       '\t\t<string>d</string>\n' + 
+        var internal = '\t\t\t<key>NSStringFormatSpecTypeKey</key>\n' +
+                       '\t\t\t<string>NSStringPluralRuleType</string>\n' +
+                       '\t\t\t<key>NSStringFormatValueTypeKey</key>\n' +
+                       '\t\t\t<string>d</string>\n' + 
                        values
 
-        var body = '\t<key>NSStringLocalizedFormatKey</key>\n' +
-                   '\t<string>%#@value@</string>\n' +
-                   '\t<key>value</key>\n' +
-                   '\t<dict>\n' +
+        var body = '\t\t<key>NSStringLocalizedFormatKey</key>\n' +
+                   '\t\t<string>%#@value@</string>\n' +
+                   '\t\t<key>value</key>\n' +
+                   '\t\t<dict>\n' +
                     internal +
-                   '\t</dict>\n' 
+                   '\t\t</dict>\n' 
 
-        var keyOutput = '<key>' + key + '</key>';
-        var bodyOutput = '<dict>\n' + body + '</dict>\n';
+        var keyOutput = '\t<key>' + key + '</key>';
+        var bodyOutput = '\t<dict>\n' + body + '\t</dict>';
     }
 
     return keyOutput + '\n' + bodyOutput;            
