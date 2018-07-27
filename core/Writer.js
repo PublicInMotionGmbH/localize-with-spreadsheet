@@ -20,15 +20,15 @@ FileWriter.prototype.write = function (filePath, encoding, lines, transformer, o
     }
 
      var valueToInsert = this.getTransformedLines(lines, transformer, isIOSDictFormat);
-     valueToInsert = valueToInsert.replace(/\n\n\s*\n/g, '\n');
 
-     if (isIOSDictFormat) {
-        valueToInsert = valueToInsert.replace(/\/\/.*/gi, "")
+     if (isIOSDictFormat === true) {
+        valueToInsert = valueToInsert.replace(/\/\/.*/gi, "") // Remove unnecessary comments
         var output = transformer.insertForIOSDictFormat(fileContent, valueToInsert, options);
      } else {
         var output = transformer.insert(fileContent, valueToInsert, options);
      }
 
+    output = output.replace(/\n\n\s*\n/g, '\n'); // Remove unnecessary enters
     writeFileAndCreateDirectoriesSync(filePath, output, 'utf8');
 };
 
@@ -43,7 +43,7 @@ var writeFileAndCreateDirectoriesSync = function (filepath, content, encoding) {
     fs.writeFileSync(filepath, content, encoding);
 };
 
-FileWriter.prototype.getTransformedLines = function (lines, transformer, flag) {
+FileWriter.prototype.getTransformedLines = function (lines, transformer, isIOSDictFormat) {
     var valueToInsert = '';
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
@@ -51,10 +51,7 @@ FileWriter.prototype.getTransformedLines = function (lines, transformer, flag) {
             if (line.isComment()) {
                 valueToInsert += transformer.transformComment(line.getComment());
             } else {
-                newVal = transformer.transformKeyValue(line.getKey(), line.getValue(), flag);
-                // if (newVal != "") {
-                    valueToInsert += newVal
-                // }
+                valueToInsert += transformer.transformKeyValue(line.getKey(), line.getValue(), isIOSDictFormat);
             }
         }
         if (i != lines.length - 1) {

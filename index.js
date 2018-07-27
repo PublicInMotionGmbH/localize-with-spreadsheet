@@ -65,6 +65,7 @@ Gs2File.prototype.save = function (outputPath, opts, iOSDictPath, cb) {
             var transformer = Transformer[format || 'android'];
             self._writer.write(outputPath, encoding, lines, transformer, opts, false);
 
+            // Create special '.stringdict' file for iOS if required 
             if (iOSDictPath) {
                 var transformer = Transformer["ios"];
                 self._writer.write(iOSDictPath, encoding, lines, transformer, opts, true)

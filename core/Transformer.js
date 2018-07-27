@@ -13,6 +13,7 @@ var iOSTransformer = {
         return "// " + comment;
     },
     transformKeyValue: function (key, value, isIOSDictFormat) {
+        // Format lines for iOS requirements
         var normalizedValue = value.replace(/%newline%/gi, "\\n");
         normalizedValue = normalizedValue.replace(/"/gi, '\\"');
         normalizedValue = normalizedValue.replace(/%([df])/gi, '\\%$1');
@@ -23,12 +24,12 @@ var iOSTransformer = {
 
         var xmlFormat = yaml.safeLoad(normalizedValue);
 
-        if (isIOSDictFormat && xmlFormat.other) {
-            return iOSDictFormatGenerator(key, xmlFormat);
+        if (isIOSDictFormat === true && xmlFormat.other !== undefined) {
+            return iOSDictFormatGenerator(key, xmlFormat); // Return '.stringdict' format line 
         } 
 
-        if (!isIOSDictFormat && !xmlFormat.other) {
-            return '"' + key + '" = "' + normalizedValue + '";';
+        if (isIOSDictFormat === false && xmlFormat.other === undefined) {
+            return '"' + key + '" = "' + normalizedValue + '";'; // Return '.string' format line
         }
 
         return ""
@@ -50,6 +51,7 @@ var iOSTransformer = {
     },
 
     insertForIOSDictFormat: function (input, newValues) {
+        // Add required input in '.stringdict' file
         input = '<?xml version="1.0" encoding="UTF-8"?>\n' +
                 '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
                 '<plist version="1.0">\n' +
@@ -251,7 +253,8 @@ function isPlural(str) {
 }
 
 function iOSDictFormatGenerator(key, value) {
-    if (!value.other) {
+    // Check for required 'other' filed and if exists create xml
+    if (value.other === undefined) {
         return
     } 
     else {
@@ -261,27 +264,26 @@ function iOSDictFormatGenerator(key, value) {
             str = str.replace(/\\%([@df])/gi, "%$1");
             str = str.replace(/\\%(\d)\$([@df])/gi, "%$1$$$2");
 
-            values += '\t\t\t<key>' + val + '</key>\n'
-            values += '\t\t\t<string>' + str + '</string>\n'
+            values += '\t\t<key>' + val + '</key>\n'
+            values += '\t\t<string>' + str + '</string>\n'
         }
 
 
-    var internal = '\t\t\t<key>NSStringFormatSpecTypeKey</key>\n' +
-                   '\t\t\t<string>NSStringPluralRuleType</string>\n' +
-                   '\t\t\t<key>NSStringFormatValueTypeKey</key>\n' +
-                   '\t\t\t<string>d</string>\n' + 
-                   values
+        var internal = '\t\t<key>NSStringFormatSpecTypeKey</key>\n' +
+                       '\t\t<string>NSStringPluralRuleType</string>\n' +
+                       '\t\t<key>NSStringFormatValueTypeKey</key>\n' +
+                       '\t\t<string>d</string>\n' + 
+                       values
 
-    var body = '\t\t<key>NSStringLocalizedFormatKey</key>\n' +
-               '\t\t<string>%#@value@</string>\n' +
-               '\t\t<key>value</key>\n' +
-               '\t\t<dict>\n' +
-                internal +
-               '\t\t</dict>\n' 
+        var body = '\t<key>NSStringLocalizedFormatKey</key>\n' +
+                   '\t<string>%#@value@</string>\n' +
+                   '\t<key>value</key>\n' +
+                   '\t<dict>\n' +
+                    internal +
+                   '\t</dict>\n' 
 
-    var keyOutput = '\t<key>' + key + '</key>';
-    var bodyOutput = '\t<dict>\n' + body + '\t</dict>\n';
-
+        var keyOutput = '<key>' + key + '</key>';
+        var bodyOutput = '<dict>\n' + body + '</dict>\n';
     }
 
     return keyOutput + '\n' + bodyOutput;            
