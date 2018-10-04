@@ -14,7 +14,6 @@
     "main": "index.js",
     "dependencies": {
         "google-spreadsheet": "^2.0.6",
-        "google-spreadsheets": "git://github.com/xavierha/node-google-spreadsheets.git",
         "googleclientlogin": "^0.2.8",
         "js-yaml": "^3.12.0",
         "mkpath": "^0.1.0",
