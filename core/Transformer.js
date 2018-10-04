@@ -21,6 +21,13 @@ var iOSTransformer = {
         normalizedValue = normalizedValue.replace(/%(\d)\$s/gi, "\\%$1$$@");
         normalizedValue = normalizedValue.replace(/%(\d)\$d/gi, "\\%$1$$d");
         normalizedValue = normalizedValue.replace(/%(\d)\$f/gi, "\\%$1$$f");
+        
+        normalizedValue = normalizedValue.replace("zero:", "zero :");
+        normalizedValue = normalizedValue.replace("one:", "one :");
+        normalizedValue = normalizedValue.replace("two:", "two :");
+        normalizedValue = normalizedValue.replace("few:", "few :");
+        normalizedValue = normalizedValue.replace("many:", "many :");
+        normalizedValue = normalizedValue.replace("other:", "other :");
 
         var xmlFormat = yaml.safeLoad(normalizedValue);
 
@@ -79,7 +86,14 @@ var androidTransformer = {
  
         normalizedValue = normalizedValue.replace(/%(\d)\$([sdf])/gi, '\\%$1$$$2');
         normalizedValue = normalizedValue.replace(/%([sdf])/gi, '\\%$1');
-
+        
+        normalizedValue = normalizedValue.replace("zero:", "zero :");    
+        normalizedValue = normalizedValue.replace("one:", "one :");
+        normalizedValue = normalizedValue.replace("two:", "two :");
+        normalizedValue = normalizedValue.replace("few:", "few :");
+        normalizedValue = normalizedValue.replace("many:", "many :");
+        normalizedValue = normalizedValue.replace("other:", "other :");
+        
         var parsedValue = yaml.safeLoad(normalizedValue);
 
         var output;
