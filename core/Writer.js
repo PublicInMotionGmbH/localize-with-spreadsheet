@@ -19,7 +19,7 @@ FileWriter.prototype.write = function (filePath, encoding, lines, transformer, o
         fileContent = fs.readFileSync(filePath, encoding);
     }
 
-     var valueToInsert = this.getTransformedLines(lines, transformer, isIOSDictFormat);
+     var valueToInsert = this.getTransformedLines(lines, transformer, isIOSDictFormat, options.valueCol);
 
      if (isIOSDictFormat === true) {
         valueToInsert = valueToInsert.replace(/\/\/.*/gi, "") // Remove unnecessary comments
@@ -43,7 +43,7 @@ var writeFileAndCreateDirectoriesSync = function (filepath, content, encoding) {
     fs.writeFileSync(filepath, content, encoding);
 };
 
-FileWriter.prototype.getTransformedLines = function (lines, transformer, isIOSDictFormat) {
+FileWriter.prototype.getTransformedLines = function (lines, transformer, isIOSDictFormat, valueCol) {
     var valueToInsert = '';
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
@@ -51,7 +51,11 @@ FileWriter.prototype.getTransformedLines = function (lines, transformer, isIOSDi
             if (line.isComment()) {
                 valueToInsert += transformer.transformComment(line.getComment());
             } else {
-                valueToInsert += transformer.transformKeyValue(line.getKey(), line.getValue(), isIOSDictFormat);
+                if(isEmpty(line.getValue())) { 
+                    console.log("%s - String for id: %s is empty", valueCol, line.getKey());
+                } else {
+                    valueToInsert += transformer.transformKeyValue(line.getKey(), line.getValue(), isIOSDictFormat);
+                }
             }
         }
         if (i != lines.length - 1) {
@@ -60,6 +64,10 @@ FileWriter.prototype.getTransformedLines = function (lines, transformer, isIOSDi
     }
 
     return valueToInsert;
+}
+
+function isEmpty(str) {
+    return (!str || 0 === str.length);
 }
 
 var FakeWriter = function () {
