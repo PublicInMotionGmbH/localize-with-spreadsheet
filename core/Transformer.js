@@ -22,20 +22,19 @@ var iOSTransformer = {
         normalizedValue = normalizedValue.replace(/%(\d)\$d/gi, "\\%$1$$d");
         normalizedValue = normalizedValue.replace(/%(\d)\$f/gi, "\\%$1$$f");
         
-        normalizedValue = normalizedValue.replace("zero:", "zero :");
-        normalizedValue = normalizedValue.replace("one:", "one :");
-        normalizedValue = normalizedValue.replace("two:", "two :");
-        normalizedValue = normalizedValue.replace("few:", "few :");
-        normalizedValue = normalizedValue.replace("many:", "many :");
-        normalizedValue = normalizedValue.replace("other:", "other :");
+        normalizedValue = normalizedValue.replace(/zero *:/, "zero :");
+        normalizedValue = normalizedValue.replace(/one *:/, "one :");
+        normalizedValue = normalizedValue.replace(/two *:/, "two :");
+        normalizedValue = normalizedValue.replace(/few *:/, "few :");
+        normalizedValue = normalizedValue.replace(/many *:/, "many :");
+        normalizedValue = normalizedValue.replace(/other *:/, "other :");
 
-        var xmlFormat = yaml.safeLoad(normalizedValue);
-
-        if (isIOSDictFormat === true && xmlFormat.other !== undefined) {
+        if (isIOSDictFormat === true && isPlural(normalizedValue)) {
+            var xmlFormat = yaml.safeLoad(normalizedValue);
             return iOSDictFormatGenerator(key, xmlFormat); // Return '.stringdict' format line 
         } 
 
-        if (isIOSDictFormat === false && xmlFormat.other === undefined) {
+        if (isIOSDictFormat === false && !isPlural(normalizedValue)) {
             normalizedValue = normalizedValue.replace(/\\%([@df])/gi, "%$1");
             normalizedValue = normalizedValue.replace(/\\%(\d)\$([@df])/gi, "%$1$$$2");
             return '"' + key + '" = "' + removeNewLines(normalizedValue) + '";'; // Return '.string' format line
@@ -84,21 +83,21 @@ var androidTransformer = {
         normalizedValue = normalizedValue.replace(/\u00A0/gi, "\\u00A0");
         normalizedValue = normalizedValue.replace(/([^\.]|^)(\.{3})([^\.]|$)/gi, '$1&#8230;$3');
 
- 
         normalizedValue = normalizedValue.replace(/%(\d)\$([sdf])/gi, '\\%$1$$$2');
         normalizedValue = normalizedValue.replace(/%([sdf])/gi, '\\%$1');
         
-        normalizedValue = normalizedValue.replace("zero:", "zero :");    
-        normalizedValue = normalizedValue.replace("one:", "one :");
-        normalizedValue = normalizedValue.replace("two:", "two :");
-        normalizedValue = normalizedValue.replace("few:", "few :");
-        normalizedValue = normalizedValue.replace("many:", "many :");
-        normalizedValue = normalizedValue.replace("other:", "other :");
-        
-        var parsedValue = yaml.safeLoad(normalizedValue);
+        normalizedValue = normalizedValue.replace(/zero *:/, "zero :");
+        normalizedValue = normalizedValue.replace(/one *:/, "one :");
+        normalizedValue = normalizedValue.replace(/two *:/, "two :");
+        normalizedValue = normalizedValue.replace(/few *:/, "few :");
+        normalizedValue = normalizedValue.replace(/many *:/, "many :");
+        normalizedValue = normalizedValue.replace(/other *:/, "other :");
+
 
         var output;
-        if(isPlural(parsedValue)) {
+        if(isPlural(normalizedValue)) {
+            var parsedValue = yaml.safeLoad(normalizedValue);
+            
             output = '<plurals name="' + key + '">\n';
             for (var quantityKey in parsedValue) {
                 output += '\t<item quantity="' + quantityKey + '">' + removeNewLines(parsedValue[quantityKey]) + '</item>\n'
@@ -266,7 +265,8 @@ function setCharAt(str, index, chr) {
 }
 
 function isPlural(str) {
-    return str.other !== undefined
+    var pluralWords = ["zero :", "one :", "two :", "few :", "many :", "other :"]
+    return pluralWords.some(word => str.includes(word))
 }
 
 function removeNewLines(str) {
