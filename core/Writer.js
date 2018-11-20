@@ -49,17 +49,14 @@ FileWriter.prototype.getTransformedLines = function (lines, transformer, isIOSDi
         var line = lines[i];
         if (!line.isEmpty()) {
             if (line.isComment()) {
-                valueToInsert += transformer.transformComment(line.getComment());
+                valueToInsert += EOL + transformer.transformComment(line.getComment()) + getNewLineIfNecessary(i, lines);
             } else {
                 if(isEmpty(line.getValue())) { 
                     console.log("%s - String for id: %s is empty", valueCol, line.getKey());
                 } else {
-                    valueToInsert += transformer.transformKeyValue(line.getKey(), line.getValue(), isIOSDictFormat);
+                    valueToInsert += transformer.transformKeyValue(line.getKey(), line.getValue(), isIOSDictFormat) + getNewLineIfNecessary(i, lines);
                 }
             }
-        }
-        if (i != lines.length - 1) {
-            valueToInsert += EOL;
         }
     }
 
@@ -68,6 +65,13 @@ FileWriter.prototype.getTransformedLines = function (lines, transformer, isIOSDi
 
 function isEmpty(str) {
     return (!str || 0 === str.length);
+}
+
+function getNewLineIfNecessary(index, lines) {
+    if (index != lines.length - 1) {
+        return EOL;
+    }
+    return '';
 }
 
 var FakeWriter = function () {

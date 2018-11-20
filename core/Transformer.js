@@ -67,11 +67,13 @@ var iOSTransformer = {
 };
 
 var androidTransformer = {
+    ANDROID_INDENT: '  ',
     transformComment: function (comment) {
-        return "<!-- " + comment + " -->";
+        return androidTransformer.ANDROID_INDENT + "<!-- " + comment + " -->";
     },
-
     transformKeyValue: function (key, value) {
+        const INDENT = androidTransformer.ANDROID_INDENT;
+
         var normalizedValue = value.replace(/%newline%/gi, "\\n");
         normalizedValue = normalizedValue.replace(/'/gi, "\\'");
         normalizedValue = normalizedValue.replace(/&/gi, "&amp;");
@@ -87,13 +89,13 @@ var androidTransformer = {
         if(isPlural(normalizedValue)) {
             var parsedValue = yaml.safeLoad(normalizedValue);
             
-            output = '<plurals name="' + key + '">\n';
+            output = INDENT + '<plurals name="' + key + '">\n';
             for (var quantityKey in parsedValue) {
-                output += '\t<item quantity="' + quantityKey + '">' + removeNewLines(parsedValue[quantityKey]) + '</item>\n'
+                output += INDENT + INDENT + '<item quantity="' + quantityKey + '">' + removeNewLines(parsedValue[quantityKey]) + '</item>\n';
             }
-            output += '</plurals>'
+            output += INDENT + '</plurals>';
         } else {
-            output = '<string name="' + key + '">' + removeNewLines(normalizedValue) + '</string>';
+            output = INDENT + '<string name="' + key + '">' + removeNewLines(normalizedValue) + '</string>';
         }
 
         output = output.replace(/\\%(\d)\$([sdf])/gi, '%$1$$$2')
