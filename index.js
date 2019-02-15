@@ -1,6 +1,9 @@
 var GSReader = require('./core/LineReader.js').GS;
 var FileWriter = require('./core/Writer.js').File;
 var Transformer = require('./core/Transformer.js');
+var Q = require('q');
+var saveCounter = 1;
+var writeCounter = 1;
 
 var Gs2File = function (reader, writer) {
     this._reader = reader;
@@ -31,7 +34,8 @@ Gs2File.prototype.setEncoding = function (encoding) {
 }
 
 Gs2File.prototype.save = function (outputPath, opts, iOSDictPath, cb) {
-    console.log('saving ' + outputPath);
+    console.log(saveCounter + ' saving ' + outputPath);
+    saveCounter += 1;
     var self = this;
 
     opts = opts || {};
@@ -62,6 +66,8 @@ Gs2File.prototype.save = function (outputPath, opts, iOSDictPath, cb) {
 
     this._reader.select(keyCol, valueCol).then(function (lines) {
         if (lines) {
+            console.log(writeCounter + ' writing');
+            writeCounter += 1;
             var transformer = Transformer[format || 'android'];
             self._writer.write(outputPath, encoding, lines, transformer, opts, false);
 
@@ -69,14 +75,20 @@ Gs2File.prototype.save = function (outputPath, opts, iOSDictPath, cb) {
             if (iOSDictPath) {
                 var transformer = Transformer["ios"];
                 self._writer.write(iOSDictPath, encoding, lines, transformer, opts, true)
-            } 
+            }
+
+            deferred.resolve(); 
         }
 
         if (typeof(cb) == 'function') {
             cb();
+            deferred.resolve();
         }
+    }, function() {
+        deferred.reject();
     });
 
+    return deferred.promise;
 };
 
 module.exports = Gs2File;
