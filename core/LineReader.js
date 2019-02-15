@@ -54,7 +54,7 @@ GSReader.prototype.select = function (keyCol, valCol) {
         var extractedLines = self.extractFromRawData(worksheets, keyCol, valCol);
         deferred.resolve(extractedLines);
     }).fail(function (error) {
-        //console.error('Cannot fetch data');
+        deferred.reject();
     });
 
     return deferred.promise;
