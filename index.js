@@ -34,6 +34,7 @@ Gs2File.prototype.setEncoding = function (encoding) {
 }
 
 Gs2File.prototype.save = function (outputPath, opts, iOSDictPath, cb) {
+    var deferred = Q.defer();
     console.log(saveCounter + ' saving ' + outputPath);
     saveCounter += 1;
     var self = this;
