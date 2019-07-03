@@ -256,7 +256,10 @@ function setCharAt(str, index, chr) {
 const pluralWords = ["zero", "one", "two", "few", "many", "other"];
 
 function normalizePlurals(normalizedValue) {
-    // /zero *:/ regex matches string with any number of white spaces between 'zero' and ':'
+    /*
+    e.g. '\bone\b *:' regex matches string with any number of white spaces between 'one' and ':'.
+    Besides /b ensures that only single, separate word will be matched. So "one :" matches while "Attenzione :" does not
+    */
     const pluralRegexes = pluralWords.map(word => new RegExp(`\\b${word}\\b *:`));
     for(let index = 0; index < pluralWords.length; index++) {
         normalizedValue = normalizedValue.replace(pluralRegexes[index], `${pluralWords[index]} :`);
