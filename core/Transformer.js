@@ -253,21 +253,23 @@ function setCharAt(str, index, chr) {
     return str.substr(0, index) + chr + str.substr(index + 1);
 }
 
-function isPlural(str) {
-    var pluralWords = ["zero :", "one :", "two :", "few :", "many :", "other :"]
-    return pluralWords.some(word => str.includes(word))
-}
+const pluralWords = ["zero", "one", "two", "few", "many", "other"];
 
 function normalizePlurals(normalizedValue) {
     // /zero *:/ regex matches string with any number of white spaces between 'zero' and ':'
-    normalizedValue = normalizedValue.replace(/zero *:/, "zero :");
-    normalizedValue = normalizedValue.replace(/one *:/, "one :");
-    normalizedValue = normalizedValue.replace(/two *:/, "two :");
-    normalizedValue = normalizedValue.replace(/few *:/, "few :");
-    normalizedValue = normalizedValue.replace(/many *:/, "many :");
-    normalizedValue = normalizedValue.replace(/other *:/, "other :");
+    const pluralRegexes = pluralWords.map(word => new RegExp(`\\b${word}\\b *:`));
+    for(let index = 0; index < pluralWords.length; index++) {
+        normalizedValue = normalizedValue.replace(pluralRegexes[index], `${pluralWords[index]} :`);
+    }
+    
     return normalizedValue;
 }
+
+function isPlural(str) {
+    const pluralRegexes = pluralWords.map(word => new RegExp(`\\b${word}\\b :`));
+    return pluralRegexes.some(regex => str.match(regex));
+}
+
 function removeNewLines(str) {
 	return str.replace(/(\r\n|\n|\r)/gm, "");
 }
