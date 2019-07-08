@@ -96,8 +96,8 @@ var androidTransformer = {
             output = INDENT + '<string name="' + key + '">' + removeNewLines(normalizedValue) + '</string>';
         }
 
-        output = output.replace(/\\%(\d)\$([sdf])/gi, '%$1$$$2')
-        output = output.replace(/\\%([sdf])/gi, '%$1')
+        output = output.replace(/\\%(\d)\$([sdf])/gi, '%$1$$$2');
+        output = output.replace(/\\%([sdf])/gi, '%$1');
 
         return output;
     },
@@ -258,7 +258,7 @@ const pluralWords = ["zero", "one", "two", "few", "many", "other"];
 function normalizePlurals(normalizedValue) {
     /*
     e.g. '\bone\b *:' regex matches string with any number of white spaces between 'one' and ':'.
-    Besides /b ensures that only single, separate word will be matched. So "one :" matches while "Attenzione :" does not
+    Besides \b ensures that only single, separate word will be matched. So "one :" matches while "Attenzione :" does not
     */
     const pluralRegexes = pluralWords.map(word => new RegExp(`\\b${word}\\b *:`));
     for(let index = 0; index < pluralWords.length; index++) {

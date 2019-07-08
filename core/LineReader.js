@@ -97,7 +97,7 @@ GSReader.prototype.extractFromWorksheet = function (rawWorksheet, keyCol, valCol
                 if (line.isComment()) {
                     results.push(new Line("","\n"))
                 }
-                if (line.getKey() != '') {
+                if (line.getKey() !== '') {
                     results.push(line);
                 }
             }
