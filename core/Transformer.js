@@ -21,13 +21,13 @@ var iOSTransformer = {
         normalizedValue = normalizedValue.replace(/%(\d)\$s/gi, "\\%$1$$@");
         normalizedValue = normalizedValue.replace(/%(\d)\$d/gi, "\\%$1$$d");
         normalizedValue = normalizedValue.replace(/%(\d)\$f/gi, "\\%$1$$f");
-        
-        normalizedValue = normalizePlurals(normalizedValue);
 
         if (isIOSDictFormat === true && isPlural(normalizedValue)) {
+            normalizedValue = normalizePlurals(normalizedValue);
+
             var xmlFormat = yaml.safeLoad(normalizedValue);
             return iOSDictFormatGenerator(key, xmlFormat); // Return '.stringdict' format line 
-        } 
+        }
 
         if (isIOSDictFormat === false && !isPlural(normalizedValue)) {
             normalizedValue = normalizedValue.replace(/\\%([@df])/gi, "%$1");
@@ -43,7 +43,7 @@ var iOSTransformer = {
     },
 
     // Add required input in '.stringdict' 
-    insertForIOSDictFormat: function (input, newValues) {    
+    insertForIOSDictFormat: function (input, newValues) {
         var header = '<?xml version="1.0" encoding="UTF-8"?>\n' +
                      '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
                      '<plist version="1.0">\n' +
@@ -52,7 +52,7 @@ var iOSTransformer = {
 
         if (input === "") {
             return header + newValues + tail;
-        } 
+        }
 
         var headerLength = header.length
         var tailLength = tail.length
@@ -80,13 +80,13 @@ var androidTransformer = {
 
         normalizedValue = normalizedValue.replace(/%(\d)\$([sdf])/gi, '\\%$1$$$2');
         normalizedValue = normalizedValue.replace(/%([sdf])/gi, '\\%$1');
-        
-        normalizedValue = normalizePlurals(normalizedValue);
 
         var output;
         if(isPlural(normalizedValue)) {
+            normalizedValue = normalizePlurals(normalizedValue);
+
             var parsedValue = yaml.safeLoad(normalizedValue);
-            
+
             output = INDENT + '<plurals name="' + key + '">\n';
             for (var quantityKey in parsedValue) {
                 output += INDENT + INDENT + '<item quantity="' + quantityKey + '">' + removeNewLines(parsedValue[quantityKey]) + '</item>\n';
@@ -253,24 +253,23 @@ function setCharAt(str, index, chr) {
     return str.substr(0, index) + chr + str.substr(index + 1);
 }
 
+/*
+e.g. '\bone\b *:' regex matches string with any number of white spaces between 'one' and ':'.
+Besides \b ensures that only single, separate word will be matched. So "one :" matches while "Attenzione :" does not
+*/
 const pluralWords = ["zero", "one", "two", "few", "many", "other"];
+const pluralRegexes = pluralWords.map(word => new RegExp(`\\b${word}\\b *:`));
+
+function isPlural(str) {
+    return pluralRegexes.some(regex => str.match(regex));
+}
 
 function normalizePlurals(normalizedValue) {
-    /*
-    e.g. '\bone\b *:' regex matches string with any number of white spaces between 'one' and ':'.
-    Besides \b ensures that only single, separate word will be matched. So "one :" matches while "Attenzione :" does not
-    */
-    const pluralRegexes = pluralWords.map(word => new RegExp(`\\b${word}\\b *:`));
     for(let index = 0; index < pluralWords.length; index++) {
         normalizedValue = normalizedValue.replace(pluralRegexes[index], `${pluralWords[index]} :`);
     }
-    
-    return normalizedValue;
-}
 
-function isPlural(str) {
-    const pluralRegexes = pluralWords.map(word => new RegExp(`\\b${word}\\b :`));
-    return pluralRegexes.some(regex => str.match(regex));
+    return normalizedValue;
 }
 
 function removeNewLines(str) {
@@ -281,7 +280,7 @@ function iOSDictFormatGenerator(key, value) {
     // Check for required 'other' filed and if exists create xml
     if (value.other === undefined) {
         return
-    } 
+    }
     else {
         var values = ""
         for (var val in value) {
@@ -297,7 +296,7 @@ function iOSDictFormatGenerator(key, value) {
         var internal = '\t\t\t<key>NSStringFormatSpecTypeKey</key>\n' +
                        '\t\t\t<string>NSStringPluralRuleType</string>\n' +
                        '\t\t\t<key>NSStringFormatValueTypeKey</key>\n' +
-                       '\t\t\t<string>d</string>\n' + 
+                       '\t\t\t<string>d</string>\n' +
                        values
 
         var body = '\t\t<key>NSStringLocalizedFormatKey</key>\n' +
@@ -305,13 +304,13 @@ function iOSDictFormatGenerator(key, value) {
                    '\t\t<key>value</key>\n' +
                    '\t\t<dict>\n' +
                     internal +
-                   '\t\t</dict>\n' 
+                   '\t\t</dict>\n'
 
         var keyOutput = '\t<key>' + key + '</key>';
         var bodyOutput = '\t<dict>\n' + body + '\t</dict>';
     }
 
-    return keyOutput + '\n' + bodyOutput;            
+    return keyOutput + '\n' + bodyOutput;
 }
 
 module.exports = {'ios': iOSTransformer, 'android': androidTransformer, 'json': jsonTransformer, 'dart': dartTransformer, 'dartTemplate': dartTemplateTransformer, '.net': dotNetTransformer };

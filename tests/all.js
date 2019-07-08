@@ -4,5 +4,6 @@ reporter.run([
     'tests/iOSTransformerTests.js',
     'tests/LineTests.js',
     'tests/GSReaderTests.js',
-    'tests/WriterTests.js'
+    'tests/WriterTests.js',
+    'tests/PluralsTests.js'
 ]);
