@@ -4,55 +4,56 @@ var EOL = require('os').EOL;
 exports.testComment = function (test) {
     var result = transformer.transformComment('un commentaire');
 
-    test.equal('<!-- un commentaire -->', result);
+    test.equal('  <!-- un commentaire -->', result);
+
     test.done();
 };
 
 exports.testKeyValue = function (test) {
     var line = transformer.transformKeyValue('ma_cle', 'La valeur');
-    test.equal('<string name="ma_cle">La valeur</string>', line);
+    test.equal('  <string name="ma_cle">La valeur</string>', line);
 
     test.done();
 };
 
 exports.testMultipleFormat = function (test) {
-    var line = transformer.transformKeyValue('ma_cle', 'La valeur %s et %s');
-    test.equal('<string name="ma_cle">La valeur %1$s et %2$s</string>', line);
+    var line = transformer.transformKeyValue('ma_cle', 'La valeur %1$s et %2$s');
+    test.equal('  <string name="ma_cle">La valeur %1$s et %2$s</string>', line);
 
     test.done();
 };
 
 exports.testSingleFormat = function (test) {
-    var line = transformer.transformKeyValue('ma_cle', 'La valeur %s');
-    test.equal('<string name="ma_cle">La valeur %1$s</string>', line);
+    var line = transformer.transformKeyValue('ma_cle', 'La valeur %1$s');
+    test.equal('  <string name="ma_cle">La valeur %1$s</string>', line);
 
     test.done();
 };
 
 exports.testEscapeAmp = function (test) {
     var line = transformer.transformKeyValue('ma_cle', 'Ma & valeur');
-    test.equal('<string name="ma_cle">Ma &amp; valeur</string>', line);
+    test.equal('  <string name="ma_cle">Ma &amp; valeur</string>', line);
 
     test.done();
 };
 
 exports.testReplaceThreePointWithEllipsisCharacter = function (test) {
     var line = transformer.transformKeyValue('ma_cle', 'Ma valeur...');
-    test.equal('<string name="ma_cle">Ma valeur&#8230;</string>', line);
+    test.equal('  <string name="ma_cle">Ma valeur&#8230;</string>', line);
 
     test.done();
 };
 
 exports.testReplaceThreePointInTheMiddleWithEllipsisCharacter = function (test) {
     var line = transformer.transformKeyValue('ma_cle', 'Ma valeur...à remplacer');
-    test.equal('<string name="ma_cle">Ma valeur&#8230;à remplacer</string>', line);
+    test.equal('  <string name="ma_cle">Ma valeur&#8230;à remplacer</string>', line);
 
     test.done();
 };
 
 exports.testShouldNotReplaceFourPointWithEllipsisCharacter = function (test) {
     var line = transformer.transformKeyValue('ma_cle', 'Ma valeur....');
-    test.equal('<string name="ma_cle">Ma valeur....</string>', line);
+    test.equal('  <string name="ma_cle">Ma valeur....</string>', line);
 
     test.done();
 };
