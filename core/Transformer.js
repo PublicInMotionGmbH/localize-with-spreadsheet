@@ -258,7 +258,7 @@ e.g. '\bone\b *:' regex matches string with any number of white spaces between '
 Besides \b ensures that only single, separate word will be matched. So "one :" matches while "Attenzione :" does not
 */
 const pluralWords = ["zero", "one", "two", "few", "many", "other"];
-const pluralRegexes = pluralWords.map(word => new RegExp(`\\b${word}\\b *:`));
+const pluralRegexes = pluralWords.map(word => new RegExp(`\\b${word}\\b *: *`));
 
 function isPlural(str) {
     return pluralRegexes.some(regex => str.match(regex));
@@ -266,7 +266,7 @@ function isPlural(str) {
 
 function normalizePlurals(normalizedValue) {
     for(let index = 0; index < pluralWords.length; index++) {
-        normalizedValue = normalizedValue.replace(pluralRegexes[index], `${pluralWords[index]} :`);
+        normalizedValue = normalizedValue.replace(pluralRegexes[index], `${pluralWords[index]} : `);
     }
 
     return normalizedValue;
