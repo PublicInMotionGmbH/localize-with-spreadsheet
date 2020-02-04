@@ -1,5 +1,5 @@
 var Line = require('./Line.js');
-var GoogleSpreadsheet = require('google-spreadsheet');
+const {GoogleSpreadsheet} = require('google-spreadsheet');
 var Q = require('q');
 var EOL = require('os').EOL;
 
