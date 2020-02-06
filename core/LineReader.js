@@ -8,8 +8,9 @@ var LineReader = {
     }
 };
 
-var GSReader = function (spreadsheetKey, sheetsFilter) {
+var GSReader = function (spreadsheetApiKey, spreadsheetKey, sheetsFilter) {
     this._sheet = new GoogleSpreadsheet(spreadsheetKey);
+    this._sheet.useApiKey(spreadsheetApiKey);
     this._sheetsFilter = sheetsFilter;
 
     this._fetchDeferred = Q.defer();
