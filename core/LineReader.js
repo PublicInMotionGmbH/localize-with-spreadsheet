@@ -168,15 +168,7 @@ WorksheetReader.prototype.next = async function (cb) {
         if (GSReader.shouldUseWorksheet(this._filterSheets, currentWorksheet.title, index)) {
             try {
                 await currentWorksheet.loadCells();
-
-                const worksheetsCells = [];
-                [...Array(currentWorksheet.rowCount).keys()].forEach(rowIndex => {
-                    [...Array(currentWorksheet.columnCount).keys()].forEach(columnIndex => {
-                        worksheetsCells.push(currentWorksheet.getCell(rowIndex, columnIndex));
-                    });
-                });
-
-                self._data.push(worksheetsCells);
+                self._data.push(self.getCells(currentWorksheet));
             } catch (error) {
                 console.error(`Error while loading cells: ${error}`);
             }
@@ -187,6 +179,17 @@ WorksheetReader.prototype.next = async function (cb) {
     } else {
         cb(this._data);
     }
+}
+
+WorksheetReader.prototype.getCells = currentWorksheet => {
+    const worksheetCells = [];
+    [...Array(currentWorksheet.rowCount).keys()].forEach(rowIndex => {
+        [...Array(currentWorksheet.columnCount).keys()].forEach(columnIndex => {
+            worksheetCells.push(currentWorksheet.getCell(rowIndex, columnIndex));
+        });
+    });
+
+    return worksheetCells;
 }
 
 var FakeReader = function (array) {
