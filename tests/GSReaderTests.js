@@ -24,20 +24,20 @@ exports.testShouldUseWorksheetWhenTitleOrIndexSpecified = function(test) {
 };
 
 exports.testExtractFromWorksheetShouldExtraLines = function(test) {
-    var reader = new GSReader('api_key', '*');
+    var reader = new GSReader('credentials', 'api_key', '*');
 
-    var rawWorksheet = [{ value: 'Key', row: 1, col: 1 },
-        { value: 'Value_fr', row: 1, col: 2 },
-        { value: 'Value_nl', row: 1, col: 3 },
-        { value: 'MaClé1', row: 2, col: 1 },
-        { value: 'La valeur 1', row: 2, col: 2 },
-        { value: 'De valuue 1', row: 2, col: 3 },
-        { value: 'MaClé2', row: 3, col: 1 },
-        { value: 'La vale de la clé 2', row: 3, col: 2 },
-        { value: 'De valuee van key 2', row: 3, col: 3 },
-        { value: '// un commentaire', row: 4, col: 1 },
-        { value: 'une clée', row: 5, col: 1 },
-        { value: '# un autre commentaire', row: 7, col: 1 }];
+    var rawWorksheet = [{ value: 'Key', rowIndex: 0, columnIndex: 0 },
+        { value: 'Value_fr', rowIndex: 0, columnIndex: 1 },
+        { value: 'Value_nl', rowIndex: 0, columnIndex: 2 },
+        { value: 'MaClé1', rowIndex: 1, columnIndex: 0 },
+        { value: 'La valeur 1', rowIndex: 1, columnIndex: 1 },
+        { value: 'De valuue 1', rowIndex: 1, columnIndex: 2 },
+        { value: 'MaClé2', rowIndex: 2, columnIndex: 0 },
+        { value: 'La vale de la clé 2', rowIndex: 2, columnIndex: 1 },
+        { value: 'De valuee van key 2', rowIndex: 2, columnIndex: 2 },
+        { value: '// un commentaire', rowIndex: 3, columnIndex: 0 },
+        { value: 'une clée', rowIndex: 4, columnIndex: 0 },
+        { value: '# un autre commentaire', rowIndex: 6, columnIndex: 0 }];
 
     var result = reader.extractFromWorksheet(rawWorksheet, 'Key', 'Value_fr');
 
@@ -52,14 +52,14 @@ exports.testExtractFromWorksheetShouldExtraLines = function(test) {
 };
 
 exports.testExtractFromWorksheet_WhenValColumnDontExist_ShouldStillWork = function(test) {
-    var reader = new GSReader('api_key', '*');
+    var reader = new GSReader('credentials', 'api_key', '*');
 
-    var rawWorksheet = [{ value: 'Key', row: 1, col: 1 },
-        { value: 'Value_fr', row: 1, col: 2 },
-        { value: 'Value_nl', row: 1, col: 3 },
-        { value: 'MaClé1', row: 2, col: 1 },
-        { value: 'La valeur 1', row: 2, col: 2 },
-        { value: 'De valuue 1', row: 2, col: 3 }];
+    var rawWorksheet = [{ value: 'Key', rowIndex: 0, columnIndex: 0 },
+        { value: 'Value_fr', rowIndex: 0, columnIndex: 1 },
+        { value: 'Value_nl', rowIndex: 0, columnIndex: 2 },
+        { value: 'MaClé1', rowIndex: 1, columnIndex: 0 },
+        { value: 'La valeur 1', rowIndex: 1, columnIndex: 1 },
+        { value: 'De valuue 1', rowIndex: 1, columnIndex: 2 }];
 
     var result = reader.extractFromWorksheet(rawWorksheet, 'Key', 'NotExist');
 
