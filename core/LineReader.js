@@ -27,6 +27,7 @@ GSReader.prototype.fetchAllCells = async function () {
             self._isFetching = true;
 
             try {
+                console.log('loading info...');
                 await self._sheet.loadInfo();
 
                 var worksheetReader = new WorksheetReader(self._sheetsFilter, self._sheet.sheetsByIndex);
@@ -43,6 +44,7 @@ GSReader.prototype.fetchAllCells = async function () {
 
         return this._fetchDeferred.promise;
     } else {
+        console.log('returning cached values');
         return self._fetchedWorksheets;
     }
 }
@@ -136,11 +138,11 @@ GSReader.shouldUseWorksheet = function (selectedSheets, title, index) {
     } else {
         var selectedArray = forceArray(selectedSheets);
         for (var i = 0; i < selectedArray.length; i++) {
-            var a = selectedArray[i];
+            var sheetIdentifier = selectedArray[i];
 
-            if (typeof (a) == "number" && index == a) {
+            if (typeof (sheetIdentifier) == "number" && index == sheetIdentifier) {
                 return true;
-            } else if (typeof (a) == "string" && title == a) {
+            } else if (typeof (sheetIdentifier) == "string" && title == sheetIdentifier) {
                 return true;
             }
         }
@@ -167,6 +169,7 @@ WorksheetReader.prototype.next = async function (cb) {
         var currentWorksheet = this._worksheets[index];
         if (GSReader.shouldUseWorksheet(this._filterSheets, currentWorksheet.title, index)) {
             try {
+                console.log('loading cells...');
                 await currentWorksheet.loadCells();
                 self._data.push(self.getCells(currentWorksheet));
             } catch (error) {
