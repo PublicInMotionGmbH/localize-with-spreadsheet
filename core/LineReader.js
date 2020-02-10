@@ -10,7 +10,7 @@ var LineReader = {
 
 var GSReader = function (credentialsFile, spreadsheetKey, sheetsFilter) {
     this._sheet = new GoogleSpreadsheet(spreadsheetKey);
-    this._sheet.useServiceAccountAuth(require(credentialsFile));
+    this._sheet.useServiceAccountAuth(credentialsFile);
     this._sheetsFilter = sheetsFilter;
 
     this._fetchDeferred = Q.defer();
