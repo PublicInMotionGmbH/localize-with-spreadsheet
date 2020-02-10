@@ -3,7 +3,6 @@ reporter.run([
     'tests/AndroidTransformerTests.js',
     'tests/iOSTransformerTests.js',
     'tests/LineTests.js',
-    'tests/GSReaderTests.js',
     'tests/WriterTests.js',
     'tests/PluralsTests.js'
 ]);

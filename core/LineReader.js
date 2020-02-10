@@ -9,7 +9,7 @@ var LineReader = {
 };
 
 var GSReader = function (credentials, spreadsheetKey, sheetsFilter) {
-    if(credentials.private_key == null || credentials.client_email == null) {
+    if (credentials.private_key == null || credentials.client_email == null) {
         throw Error('You must provide credentials which contains the private key and email address!');
     }
 
