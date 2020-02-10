@@ -8,9 +8,13 @@ var LineReader = {
     }
 };
 
-var GSReader = function (credentialsFile, spreadsheetKey, sheetsFilter) {
+var GSReader = function (credentials, spreadsheetKey, sheetsFilter) {
+    if(credentials.private_key == null || credentials.client_email == null) {
+        throw Error('You must provide credentials which contains the private key and email address!');
+    }
+
     this._sheet = new GoogleSpreadsheet(spreadsheetKey);
-    this._sheet.useServiceAccountAuth(credentialsFile);
+    this._sheet.useServiceAccountAuth(credentials);
     this._sheetsFilter = sheetsFilter;
 
     this._fetchDeferred = Q.defer();
