@@ -1,5 +1,5 @@
 var Line = require('./Line.js');
-var GoogleSpreadsheet = require('google-spreadsheet');
+const {GoogleSpreadsheet} = require('google-spreadsheet');
 var Q = require('q');
 var EOL = require('os').EOL;
 
@@ -8,8 +8,13 @@ var LineReader = {
     }
 };
 
-var GSReader = function (spreadsheetKey, sheetsFilter) {
+var GSReader = function (credentials, spreadsheetKey, sheetsFilter) {
+    if (credentials.private_key == null || credentials.client_email == null) {
+        throw Error('You must provide credentials which contains the private key and email address!');
+    }
+
     this._sheet = new GoogleSpreadsheet(spreadsheetKey);
+    this._sheet.useServiceAccountAuth(credentials);
     this._sheetsFilter = sheetsFilter;
 
     this._fetchDeferred = Q.defer();
@@ -17,7 +22,7 @@ var GSReader = function (spreadsheetKey, sheetsFilter) {
     this._fetchedWorksheets = null;
 };
 
-GSReader.prototype.fetchAllCells = function () {
+GSReader.prototype.fetchAllCells = async function () {
     var self = this;
 
     if (self._fetchedWorksheets == null) {
@@ -25,19 +30,19 @@ GSReader.prototype.fetchAllCells = function () {
         if (!self._isFetching) {
             self._isFetching = true;
 
-            self._sheet.getInfo(function (err, data) {
-                if (err) {
-                    console.error('Error while fetching the Spreadsheet (' + err + ')');
-                    console.warn('WARNING! Check that your spreadsheet is "Published" in "File > Publish to the web..."');
-                    self._fetchDeferred.reject(err);
-                } else {
-                    var worksheetReader = new WorksheetReader(self._sheetsFilter, data.worksheets);
-                    worksheetReader.read(function (fetchedWorksheets) {
-                        self._fetchedWorksheets = fetchedWorksheets;
-                        self._fetchDeferred.resolve(self._fetchedWorksheets);
-                    });
-                }
-            });
+            try {
+                await self._sheet.loadInfo();
+
+                var worksheetReader = new WorksheetReader(self._sheetsFilter, self._sheet.sheetsByIndex);
+                worksheetReader.read(function (fetchedWorksheets) {
+                    self._fetchedWorksheets = fetchedWorksheets;
+                    self._fetchDeferred.resolve(self._fetchedWorksheets);
+                });
+            } catch (error) {
+                console.error('Error while fetching the Spreadsheet (' + error + ')');
+                console.warn('WARNING! Check that your spreadsheet is "Published" in "File > Publish to the web..."');
+                self._fetchDeferred.reject(err);
+            }
         }
 
         return this._fetchDeferred.promise;
@@ -95,7 +100,7 @@ GSReader.prototype.extractFromWorksheet = function (rawWorksheet, keyCol, valCol
                 var valValue = row[valIndex];
                 var line = new Line(keyValue, valValue);
                 if (line.isComment()) {
-                    results.push(new Line("","\n"))
+                    results.push(new Line("", "\n"))
                 }
                 if (line.getKey() !== '') {
                     results.push(line);
@@ -109,26 +114,15 @@ GSReader.prototype.extractFromWorksheet = function (rawWorksheet, keyCol, valCol
 
 GSReader.prototype.flatenWorksheet = function (rawWorksheet) {
     var rows = [];
-    var lastRowIndex = 1;
+
     for (var i = 0; i < rawWorksheet.length; i++) {
         var cell = rawWorksheet[i];
 
-        //detect empty line
-        var rowIndex = cell.row;
-        var diffWithLastRow = rowIndex - lastRowIndex;
-        if (diffWithLastRow > 1) {
-            for (var j = 0; j < diffWithLastRow - 1; j++) {
-                var newRow = rows[lastRowIndex + j] = [];
-                newRow[cell.col - 1] = '';
-            }
-        }
-        lastRowIndex = rowIndex;
-
-        var row = rows[cell.row - 1];
+        var row = rows[cell.rowIndex];
         if (!row) {
-            row = rows[cell.row - 1] = [];
+            row = rows[cell.rowIndex] = [];
         }
-        row[cell.col - 1] = cell.value;
+        row[cell.columnIndex] = cell.value;
     }
     return rows;
 }
@@ -146,11 +140,11 @@ GSReader.shouldUseWorksheet = function (selectedSheets, title, index) {
     } else {
         var selectedArray = forceArray(selectedSheets);
         for (var i = 0; i < selectedArray.length; i++) {
-            var a = selectedArray[i];
+            var sheetIdentifier = selectedArray[i];
 
-            if (typeof(a) == "number" && index == a) {
+            if (typeof (sheetIdentifier) == "number" && index == sheetIdentifier) {
                 return true;
-            } else if (typeof(a) == "string" && title == a) {
+            } else if (typeof (sheetIdentifier) == "string" && title == sheetIdentifier) {
                 return true;
             }
         }
@@ -170,24 +164,36 @@ WorksheetReader.prototype.read = function (cb) {
     this.next(cb);
 }
 
-WorksheetReader.prototype.next = function (cb) {
+WorksheetReader.prototype.next = async function (cb) {
     var self = this;
     if (this._index < this._worksheets.length) {
         var index = this._index++;
         var currentWorksheet = this._worksheets[index];
         if (GSReader.shouldUseWorksheet(this._filterSheets, currentWorksheet.title, index)) {
-            currentWorksheet.getCells(currentWorksheet.id, function (err, cells) {
-                if (!err) {
-                    self._data.push(cells);
-                }
-                self.next(cb);
-            });
+            try {
+                await currentWorksheet.loadCells();
+                self._data.push(self.getCells(currentWorksheet));
+            } catch (error) {
+                console.error(`Error while loading cells: ${error}`);
+            }
+            self.next(cb);
         } else {
             this.next(cb);
         }
     } else {
         cb(this._data);
     }
+}
+
+WorksheetReader.prototype.getCells = currentWorksheet => {
+    const worksheetCells = [];
+    [...Array(currentWorksheet.rowCount).keys()].forEach(rowIndex => {
+        [...Array(currentWorksheet.columnCount).keys()].forEach(columnIndex => {
+            worksheetCells.push(currentWorksheet.getCell(rowIndex, columnIndex));
+        });
+    });
+
+    return worksheetCells;
 }
 
 var FakeReader = function (array) {
@@ -211,7 +217,7 @@ FakeReader.prototype.select = function (sheets, keyCol, keyVal, cb) {
 var forceArray = function (val) {
     if (Array.isArray(val)) return val;
     if (!val) return [];
-    return [ val ];
+    return [val];
 }
 
 module.exports = {

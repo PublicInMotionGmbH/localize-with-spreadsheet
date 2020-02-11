@@ -10,8 +10,8 @@ var Gs2File = function (reader, writer) {
     this._writer = writer;
 };
 
-Gs2File.fromGoogleSpreadsheet = function (spreadsheetKey, sheets) {
-    var gs2file = new Gs2File(new GSReader(spreadsheetKey, sheets),
+Gs2File.fromGoogleSpreadsheet = function (credentials, spreadsheetKey, sheets) {
+    var gs2file = new Gs2File(new GSReader(credentials, spreadsheetKey, sheets),
         new FileWriter());
 
     return gs2file;

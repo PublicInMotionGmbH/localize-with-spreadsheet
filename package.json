@@ -13,7 +13,7 @@
     },
     "main": "index.js",
     "dependencies": {
-        "google-spreadsheet": "^2.0.6",
+        "google-spreadsheet": "^3.0.5",
         "googleclientlogin": "^0.2.8",
         "js-yaml": "^3.12.0",
         "mkpath": "^0.1.0",
@@ -22,7 +22,11 @@
         "require": "^2.4.20"
     },
     "devDependencies": {
+        "jest": "^25.1.0",
         "nodeunit": "0.11.2"
     },
-    "readmeFilename": "README.md"
+    "readmeFilename": "README.md",
+    "scripts": {
+        "test": "jest"
+    }
 }
