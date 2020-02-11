@@ -21,7 +21,7 @@ describe("GSReader", () => {
   });
 
   test('extract from worksheet should handle extra lines', () => {
-    var reader = new GSReader({'client_email': "mail@to", 'private_key': '3287dfjskh'}, 'api_key', '*');
+    var reader = new GSReader({'client_email': 'mail@to', 'private_key': '3287dfjskh'}, 'api_key', '*');
 
     var rawWorksheet = [{value: 'Key', rowIndex: 0, columnIndex: 0},
     {value: 'Value_fr', rowIndex: 0, columnIndex: 1},
@@ -47,7 +47,7 @@ describe("GSReader", () => {
   });
 
   test('extract from worksheet when value column does not exist should still work', () => {
-    var reader = new GSReader({'client_email': "mail@to", 'private_key': '3287dfjskh'}, 'api_key', '*');
+    var reader = new GSReader({'client_email': 'mail@to', 'private_key': '3287dfjskh'}, 'api_key', '*');
 
     var rawWorksheet = [{value: 'Key', rowIndex: 0, columnIndex: 0},
     {value: 'Value_fr', rowIndex: 0, columnIndex: 1},
@@ -63,5 +63,21 @@ describe("GSReader", () => {
     expect(result[0].getValue()).toBe('');
 
     expect(result[0].isComment()).toBe(false);
+  });
+
+  test('should throw an error when private key is not passed', () => {
+    const readerInit = () => {
+      new GSReader({'client_email': "mail@to"}, 'api_key', '*');
+    };
+
+    expect(readerInit).toThrow(Error('You must provide credentials which contains the private key and email address!'));
+  });
+
+  test('should throw an error when client email is not passed', () => {
+    const readerInit = () => {
+      new GSReader({'private_key': '3287dfjskh'}, 'api_key', '*');
+    };
+
+    expect(readerInit).toThrow(Error('You must provide credentials which contains the private key and email address!'));
   });
 });
